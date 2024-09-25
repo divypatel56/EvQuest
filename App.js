@@ -4,8 +4,8 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import LoginScreen from './App/Screens/LoginScreen';
-
 import SignUpScreen from './App/Screens/SignUpScreen';
+import StartupScreen from './App/Screens/StartupScreen';
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
@@ -28,6 +28,7 @@ export default function App() {
     <View style={styles.container}>
       {/* <LoginScreen /> */}
       <SignUpScreen />
+      {/* <StartupScreen /> */}
     </View>
   );
 }

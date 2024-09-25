@@ -1,101 +1,11 @@
-import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import React from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import React, { useEffect, useRef } from 'react';
 
 export default function LoginScreen() {
     return (
-        <View style={styles.container}>
-            <Image source={require('./../../assets/Images/EV-Header.jpg')} style={styles.logoImage} />
-            <Image source={require('./../../assets/Images/EVbg.webp')} style={styles.bgImage} />
-
-            <View style={styles.textContainer}>
-                <Text style={styles.title}>EV-Quest Ultimate Charging Station Locator</Text>
-                <Text style={styles.subtitle}>Login to your account and start your EV Quest!</Text>
-            </View>
-
-            <View style={styles.inputContainer}>
-                <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" placeholderTextColor="#888" />
-                <TextInput style={styles.input} placeholder="Password" secureTextEntry={true} placeholderTextColor="#888" />
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Sign In</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.forgotButton}>
-                    <Text style={styles.forgotText}>Forgot Password?</Text>
-                </TouchableOpacity>
-            </View>
+        <View>
+            <Text>Login screen</Text>
         </View>
-    );
-}
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F5F5F5', // Light gray background for a modern look
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-    },
-    logoImage: {
-        width: '80%',
-        height: 50,
-        resizeMode: 'contain',
-        marginBottom: 30,
-    },
-    bgImage: {
-        width: '100%',
-        height: 200,
-        resizeMode: 'cover',
-        marginBottom: 20,
-    },
-    textContainer: {
-        marginBottom: 30,
-        alignItems: 'center',
-    },
-    title: {
-        fontSize: 24,
-        fontFamily: 'Outfit-medium',
-        color: '#333',
-        textAlign: 'center',
-        marginBottom: 5,
-    },
-    subtitle: {
-        fontSize: 16,
-        fontFamily: 'Outfit',
-        color: '#555',
-        textAlign: 'center',
-    },
-    inputContainer: {
-        width: '100%',
-        paddingHorizontal: 20,
-    },
-    input: {
-        borderColor: '#ddd',
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        fontSize: 16,
-        fontFamily: 'Outfit',
-        marginBottom: 15,
-        backgroundColor: '#FFF',
-    },
-    button: {
-        backgroundColor: '#007BFF', // Bootstrap blue color
-        borderRadius: 8,
-        paddingVertical: 12,
-        alignItems: 'center',
-        marginBottom: 15,
-    },
-    buttonText: {
-        color: '#FFF',
-        fontSize: 18,
-        fontFamily: 'Outfit-medium',
-    },
-    forgotButton: {
-        alignItems: 'center',
-    },
-    forgotText: {
-        color: '#007BFF',
-        fontFamily: 'Outfit',
-        fontSize: 16,
-    },
-});
+    )
+}
