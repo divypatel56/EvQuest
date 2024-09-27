@@ -5,7 +5,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import LoginScreen from './App/Screens/LoginScreen';
 import SignUpScreen from './App/Screens/SignUpScreen';
-import StartupScreen from './App/Screens/StartupScreen';
+import AppStartScreen from './App/Screens/AppStartScreen';
+//  🚗 Did you know ? EVs produce zero tailpipe emissions, making the planet greener!
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
@@ -26,9 +27,10 @@ export default function App() {
   }
   return (
     <View style={styles.container}>
-      {/* <LoginScreen /> */}
-      <SignUpScreen />
-      {/* <StartupScreen /> */}
+      <LoginScreen />
+      {/* <SignUpScreen /> */}
+
+      {/* <AppStartScreen /> */}
     </View>
   );
 }

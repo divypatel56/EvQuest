@@ -1,7 +1,10 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import React, { useEffect, useRef } from 'react';
 
-export default function StartupScreen() {
+
+
+export default function AppStartScreen() {
+
     const titleAnim = useRef(new Animated.Value(0)).current;
     const textAnim = useRef(new Animated.Value(0)).current;
     const buttonAnim = useRef(new Animated.Value(0)).current;
@@ -74,7 +77,7 @@ export default function StartupScreen() {
                 <TouchableOpacity style={styles.button}>
                     <Text style={styles.buttonText}>Sign Up</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity style={styles.button} >
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
             </Animated.View>
@@ -85,7 +88,6 @@ export default function StartupScreen() {
         </View>
     );
 }
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
