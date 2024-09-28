@@ -1,10 +1,13 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import React, { useEffect, useRef } from 'react';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+
 
 
 
 export default function AppStartScreen() {
 
+    const navigation = useNavigation(); // Access navigation
     const titleAnim = useRef(new Animated.Value(0)).current;
     const textAnim = useRef(new Animated.Value(0)).current;
     const buttonAnim = useRef(new Animated.Value(0)).current;
@@ -74,10 +77,16 @@ export default function AppStartScreen() {
             </Animated.View>
 
             <Animated.View style={[styles.buttonContainer, { opacity: buttonOpacity }]}>
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => navigation.navigate('SignUp')}
+                >
                     <Text style={styles.buttonText}>Sign Up</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button} >
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => navigation.navigate('Login')} // Navigate to Login screen
+                >
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
             </Animated.View>
@@ -140,7 +149,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 15,
         width: '80%',
-        height: 49
+        height: 55
     },
     buttonText: {
         color: '#FFF',
