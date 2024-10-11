@@ -1,11 +1,16 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Animated, Linking } from 'react-native';
 import React, { useEffect, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import * as WebBrowser from "expo-web-browser";
+import { useWarmUpBrowser } from '../../hooks/warmUpBrowser';
+import { useOAuth } from '@clerk/clerk-expo';
 
 
-
+WebBrowser.maybeCompleteAuthSession();
 
 export default function AppStartScreen() {
+    useWarmUpBrowser;
+    const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
 
     const navigation = useNavigation(); // Access navigation
     const titleAnim = useRef(new Animated.Value(0)).current;
@@ -59,6 +64,21 @@ export default function AppStartScreen() {
         inputRange: [0, 1],
         outputRange: [0.5, 1], // Scales the image from 50% to 100%
     });
+    // Function to handle Google Sign-In
+    const handleGoogleSignIn = async () => {
+        try {
+            const { createdSessionId, signIn, signUp, setActive } =
+                await startOAuthFlow();
+            if (createdSessionId) {
+                setActive({ session: createdSessionId });
+                console.log('Signed in successfully');
+            } else {
+                console.log('Session created but no further action taken');
+            }
+        } catch (err) {
+            console.error('OAuth error', err);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -91,7 +111,7 @@ export default function AppStartScreen() {
                 </TouchableOpacity>
             </Animated.View>
 
-            <TouchableOpacity style={styles.googleButton}>
+            <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn}>
                 <Text style={styles.googleButtonText}>Continue with Google</Text>
             </TouchableOpacity>
         </View>
