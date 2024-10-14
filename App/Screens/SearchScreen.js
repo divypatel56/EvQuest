@@ -1,31 +1,102 @@
-import React, { useContext, useEffect, useState } from 'react'; // Import necessary hooks and libraries
-import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native'; // Import core components from react-native
-import MapView, { Marker } from 'react-native-maps'; // Import MapView and Marker from react-native-maps
-import MapStyle from '../../assets/utils/MapStyle.json'; // Import custom map style JSON file
+import React, { useContext, useEffect, useState } from 'react';
+import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import MapView, { Marker } from 'react-native-maps'; // Import MapView and Marker for rendering map and markers
+import * as Location from 'expo-location'; // Import Location API to get user's location
+import MapStyle from '../../assets/utils/MapStyle.json'; // Custom Google Map style for styling the map
+import Searchbar from '../Screens/SearchPage/SearchBar'; // Import the custom search bar for Google Places input
+import GlobalAPI from '../../assets/utils/GlobalAPI'; // Import the API utility for fetching nearby places
+import { UserLocationContext } from '../Context/UserLocationContext'; // Import UserLocationContext to manage user location globally
+import { Image } from 'react-native-elements'; // Import Image component for custom marker icons
 
 export default function SearchScreen() {
+    // Access the user's location and the function to update it from the UserLocationContext
+    const { location, setLocation } = useContext(UserLocationContext);
 
+    // useEffect hook to fetch nearby places whenever the location changes
+    useEffect(() => {
+        // If location is available, fetch nearby places
+        location && GetNearbyPlace();
+    }, [location]); // Dependency on `location` state to run the effect when location updates
 
-    return (
+    // Function to get nearby places based on the user's current location
+    const GetNearbyPlace = () => {
+        // Data object with search parameters, including types and location restriction
+        const data = {
+            "includedTypes": ["electric_vehicle_charging_station"], // Search for EV charging stations
+            "maxResultCount": 10, // Limit results to 10
+            "locationRestriction": {
+                "circle": {
+                    "center": {
+                        "latitude": location?.latitude, // Center the search at user's latitude
+                        "longitude": location?.longitude // Center the search at user's longitude
+                    },
+                    "radius": 5000.0 // Radius of 5 kilometers for the search area
+                }
+            }
+        };
+        // Call the API to get nearby places and log the response
+        GlobalAPI.NewNearByPlace(data).then(resp => {
+            console.log(JSON.stringify(resp.data)); // Log the response data to the console
+        });
+    };
+
+    // If user's location is available, render the map and markers
+    return location?.latitude && (
         <View style={styles.container}>
-            {/* MapView component to render the map */}
             <MapView
-                customMapStyle={MapStyle} // Apply the custom map style
-                style={styles.map} // Apply the defined styles for the map
+                customMapStyle={MapStyle} // Apply custom map styling
+                style={styles.map} // Apply styles to the map
+                region={{
+                    latitude: location?.latitude, // User's current latitude
+                    longitude: location?.longitude, // User's current longitude
+                    latitudeDelta: 0.0422, // Map zoom level
+                    longitudeDelta: 0.0421, // Map zoom level
+                }}
             >
+                <Marker
+                    coordinate={{
+                        latitude: location?.latitude, // User's current latitude
+                        longitude: location?.longitude // User's current longitude
+                    }}
+                >
+                    <Image
+                        source={require('../../assets/Images/location-mark.png')} // Custom image for marker icon
+                        style={{ width: 45, height: 40, opacity: 0.9, border: 1, borderRadius: 40 }} // Style for marker icon
+                    />
+                </Marker>
             </MapView>
+
+            <View style={styles.searchBar}>
+                <Searchbar />
+            </View>
         </View>
     );
 }
 
-// Define styles for the components
+
 const styles = StyleSheet.create({
     container: {
-        flex: 1, // Make the container take up the entire screen
-        backgroundColor: '#f0f0f0', // Set the background color to light grey
+        flex: 1,
+        backgroundColor: '#f0f0f0',
     },
     map: {
-        flex: 1, // Make the map take up all the available space
-        width: Dimensions.get('window').width, // Set the width of the map to the width of the screen
+        flex: 1,
+        width: Dimensions.get('window').width,
+    },
+    searchBar: {
+        position: 'absolute',
+        top: 10,
+        left: 10,
+        right: 10,
+        zIndex: 1000,
+    },
+    reloadButton: {
+        position: 'absolute',
+        bottom: 20,
+        right: 20,
+        backgroundColor: '#007AFF',
+        borderRadius: 30,
+        padding: 15,
+        elevation: 5,
     },
 });

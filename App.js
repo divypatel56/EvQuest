@@ -11,6 +11,8 @@ import { ClerkProvider, useAuth, SignedIn, SignedOut } from '@clerk/clerk-expo';
 import * as SecureStore from "expo-secure-store"; // Import SecureStore for storing tokens securely
 import TabNavigation from "./App/Navigation/TabNavigation"; // Import TabNavigation for bottom tab navigation
 import 'react-native-get-random-values'; // Import required polyfill for random values
+import * as Location from 'expo-location'; // Import Expo's location API to access device location
+import { UserLocationContext } from './App/Context/UserLocationContext'; // Import UserLocationContext to manage user's location globally
 
 // Token cache to securely store and retrieve tokens using SecureStore
 const tokenCache = {
@@ -46,6 +48,38 @@ export default function App() {
     'Outfit-thin': require('./assets/fonts/Outfit-Thin.ttf'),
   });
 
+  // State to store location and potential error message
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  // useEffect hook to request location permission and get user location
+  useEffect(() => {
+    (async () => {
+      try {
+        // Request permission to access location
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          // If permission is denied, set an error message
+          setErrorMsg('Permission to access location was denied');
+          return;
+        }
+        // Get the user's current location
+        let location = await Location.getCurrentPositionAsync({});
+        setLocation(location.coords); // Set the location state with the coordinates
+      } catch (error) {
+        // Catch and handle any errors related to location retrieval
+        setErrorMsg(`Location error: ${error.message}`);
+      }
+    })();
+  }, []); // Empty dependency array means this runs only once when the component mounts
+
+  // Display text based on whether there's an error or if the location is available
+  let text = 'Waiting..';
+  if (errorMsg) {
+    text = errorMsg; // Display error message if there's an issue
+  } else if (location) {
+    text = JSON.stringify(location); // Display the location coordinates
+  }
 
   // useEffect hook to hide the splash screen once the fonts are loaded
   useEffect(() => {
@@ -60,16 +94,17 @@ export default function App() {
   }
 
   return (
-
-
-    <ClerkProvider
-      tokenCache={tokenCache}
-      publishableKey={Publishable_Key}
-    >
-      <NavigationContainer>
-        <NavigationHandler />
-      </NavigationContainer>
-    </ClerkProvider>
+    // Provide the user's location globally through UserLocationContext
+    <UserLocationContext.Provider value={{ location, setLocation }}>
+      <ClerkProvider
+        tokenCache={tokenCache}
+        publishableKey={Publishable_Key}
+      >
+        <NavigationContainer>
+          <NavigationHandler />
+        </NavigationContainer>
+      </ClerkProvider>
+    </UserLocationContext.Provider>
   );
 }
 
@@ -84,10 +119,10 @@ function NavigationHandler() {
 
   return (
     <View style={styles.container}>
-
       <SignedIn>
         <TabNavigation />
       </SignedIn>
+
       <SignedOut>
         <Stack.Navigator initialRouteName="AppStart">
           <Stack.Screen name="AppStart" component={AppStartScreen} options={{ headerShown: false }} />
