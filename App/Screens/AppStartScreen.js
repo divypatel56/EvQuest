@@ -2,7 +2,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, Animated, Linking } fr
 import React, { useEffect, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import * as WebBrowser from "expo-web-browser";
-import { useWarmUpBrowser } from '../../hooks/warmUpBrowser';
+import { useWarmUpBrowser } from '../hooks/warmUpBrowser';
 import { useOAuth } from '@clerk/clerk-expo';
 
 
