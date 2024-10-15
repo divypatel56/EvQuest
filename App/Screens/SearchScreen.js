@@ -7,10 +7,12 @@ import Searchbar from '../Screens/SearchPage/SearchBar'; // Import the custom se
 import GlobalAPI from '../../assets/utils/GlobalAPI'; // Import the API utility for fetching nearby places
 import { UserLocationContext } from '../Context/UserLocationContext'; // Import UserLocationContext to manage user location globally
 import { Image } from 'react-native-elements'; // Import Image component for custom marker icons
+import PlaceListView from './SearchPage/PlaceListView';
 
 export default function SearchScreen() {
     // Access the user's location and the function to update it from the UserLocationContext
     const { location, setLocation } = useContext(UserLocationContext);
+    const [placeList, setPlaceList] = useState([]);
 
     // useEffect hook to fetch nearby places whenever the location changes
     useEffect(() => {
@@ -23,7 +25,7 @@ export default function SearchScreen() {
         // Data object with search parameters, including types and location restriction
         const data = {
             "includedTypes": ["electric_vehicle_charging_station"], // Search for EV charging stations
-            "maxResultCount": 10, // Limit results to 10
+            "maxResultCount": 15, // Limit results to 10
             "locationRestriction": {
                 "circle": {
                     "center": {
@@ -36,7 +38,8 @@ export default function SearchScreen() {
         };
         // Call the API to get nearby places and log the response
         GlobalAPI.NewNearByPlace(data).then(resp => {
-            console.log(JSON.stringify(resp.data)); // Log the response data to the console
+            //console.log(JSON.stringify(resp.data)); // Log the response data to the console
+            setPlaceList(resp.data?.places);
         });
     };
 
@@ -69,6 +72,10 @@ export default function SearchScreen() {
             <View style={styles.searchBar}>
                 <Searchbar />
             </View>
+
+            <View style={styles.placeListContainer}>
+                {placeList && <PlaceListView placeList={placeList} />}
+            </View>
         </View>
     );
 }
@@ -99,4 +106,10 @@ const styles = StyleSheet.create({
         padding: 15,
         elevation: 5,
     },
+    placeListContainer: {
+        position: 'absolute',
+        bottom: 0,
+        zIndex: 10,
+        width: '100%'
+    }
 });

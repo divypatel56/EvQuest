@@ -13,6 +13,7 @@ const config = {
                 'places.formattedAddress',
                 'places.location',
                 'places.evChargeOptions',
+                'places.shortFormattedAddress',
                 'places.photos'
             ]
 
@@ -22,5 +23,5 @@ const config = {
 const NewNearByPlace = (data) => axios.post(BASE_URL, data, config);
 
 export default {
-    NewNearByPlace
+    NewNearByPlace, API_Key
 }
