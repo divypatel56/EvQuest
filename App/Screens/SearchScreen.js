@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps'; // Import MapView and Marker for rendering map and markers
 import * as Location from 'expo-location'; // Import Location API to get user's location
@@ -13,6 +13,8 @@ export default function SearchScreen() {
     // Access the user's location and the function to update it from the UserLocationContext
     const { location, setLocation } = useContext(UserLocationContext);
     const [placeList, setPlaceList] = useState([]);
+    const placeListRef = useRef(null); // Ref to access PlaceListView functions
+
 
     // useEffect hook to fetch nearby places whenever the location changes
     useEffect(() => {
@@ -43,6 +45,11 @@ export default function SearchScreen() {
         });
     };
 
+    const handleMarkerPress = (index) => {
+        // Call the scrollToIndex function in PlaceListView
+        placeListRef.current?.scrollToIndex(index);
+    };
+
     // If user's location is available, render the map and markers
     return location?.latitude && (
         <View style={styles.container}>
@@ -52,8 +59,8 @@ export default function SearchScreen() {
                 region={{
                     latitude: location?.latitude, // User's current latitude
                     longitude: location?.longitude, // User's current longitude
-                    latitudeDelta: 0.0422, // Map zoom level
-                    longitudeDelta: 0.0421, // Map zoom level
+                    latitudeDelta: 0.0800, // Map zoom level
+                    longitudeDelta: 0.0821, // Map zoom level
                 }}
             >
                 <Marker
@@ -67,6 +74,25 @@ export default function SearchScreen() {
                         style={{ width: 45, height: 40, opacity: 0.9, border: 1, borderRadius: 40 }} // Style for marker icon
                     />
                 </Marker>
+
+                {placeList.map((item, index) => (
+                    <Marker
+                        key={index}
+                        coordinate={{
+                            latitude: item.location.latitude,
+                            longitude: item.location.longitude,
+                        }}
+                        onPress={() => handleMarkerPress(index)} // Scroll to card on marker press
+                    // title={item.displayName?.text}
+                    // description={item.shortFormattedAddress}
+                    >
+                        <Image
+                            source={require('../../assets/Images/StationMarker.png')} // Custom image for marker icon
+                            style={{ width: 45, height: 40, border: 1, borderRadius: 20, }} // Style for marker icon
+                        />
+
+                    </Marker>
+                ))}
             </MapView>
 
             <View style={styles.searchBar}>
@@ -74,7 +100,7 @@ export default function SearchScreen() {
             </View>
 
             <View style={styles.placeListContainer}>
-                {placeList && <PlaceListView placeList={placeList} />}
+                {placeList && <PlaceListView placeList={placeList} ref={placeListRef} />}
             </View>
         </View>
     );
@@ -109,7 +135,8 @@ const styles = StyleSheet.create({
     placeListContainer: {
         position: 'absolute',
         bottom: 0,
-        zIndex: 10,
+        zIndex: 4,
+
         width: '100%'
     }
 });

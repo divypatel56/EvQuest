@@ -4,6 +4,8 @@ import GlobalAPI from '../../../assets/utils/GlobalAPI';
 import { LinearGradient } from 'expo-linear-gradient';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window'); // Screen width
+
 export default function PlaceItem({ place }) {
     const PLACE_PHOTO_BASE_URL = "https://places.googleapis.com/v1/";
     const key = GlobalAPI.API_Key;
@@ -56,23 +58,28 @@ export default function PlaceItem({ place }) {
 
 const styles = StyleSheet.create({
     cardContainer: {
-        width: Dimensions.get("screen").width * 0.9,
+        width: SCREEN_WIDTH * 0.9, // Match card width with screen width
         backgroundColor: "#ffffff",
-        margin: 15,
+        height: 350,
+        marginHorizontal: SCREEN_WIDTH * 0.050, // Only vertical margin to prevent spacing issues in horizontal scroll
         borderRadius: 15,
         overflow: 'hidden',
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowRadius: 15,
         shadowOffset: { width: 0, height: 5 },
-        elevation: 8, // Android shadow effect
+        elevation: 8,// Android shadow effect
+        marginBottom: 10
+
+
     },
     imageWrapper: {
+        height: '55%',
         position: 'relative',
     },
     image: {
         width: '100%',
-        height: 180,
+        height: '100%',
     },
     imageGradient: {
         position: 'absolute',
@@ -92,11 +99,13 @@ const styles = StyleSheet.create({
         elevation: 5, // slight shadow for the button
     },
     infoSection: {
-        padding: 12
+        padding: 12,
+        height: '45%',
+        justifyContent: 'space-between'
     },
     placeName: {
         fontFamily: 'Outfit',
-        fontSize: 22,
+        fontSize: 20,
         color: '#333',
         fontWeight: '600',
         marginBottom: 8,
@@ -114,8 +123,8 @@ const styles = StyleSheet.create({
     connectorCount: {
         color: "#333",
         fontFamily: 'Outfit-medium',
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: '500',
-        marginTop: 4,
+        marginBottom: 4,
     },
 });
