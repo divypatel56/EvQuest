@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import the icon library
 
-const GooglePlacesInput = ({ searchQuery, setSearchQuery, onPlaceSelected }) => {
+const GooglePlacesInput = ({ searchedLocation }) => {
     return (
         <View style={styles.container}>
             <GooglePlacesAutocomplete
@@ -11,11 +11,11 @@ const GooglePlacesInput = ({ searchQuery, setSearchQuery, onPlaceSelected }) => 
                 fetchDetails={true}
                 enablePoweredByContainer={false}
                 onPress={(data, details = null) => {
-                    // Call the function passed as a prop to handle selected place
-                    console.log(data, details);
+                    // 'details' is provided when fetchDetail = true
+                    searchedLocation(details?.geometry?.location)
                 }}
                 query={{
-                    key: 'AIzaSyBisEAZnUdJkLQEB2aM73VUrq31kiG-9W0', // Replace with your Google Places API key
+                    key: 'AIzaSyBisEAZnUdJkLQEB2aM73VUrq31kiG-9W0',
                     language: 'en',
                 }}
                 styles={{

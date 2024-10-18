@@ -50,6 +50,13 @@ export default function SearchScreen() {
         placeListRef.current?.scrollToIndex(index);
     };
 
+    const handleSearchedLocation = (newLocation) => {
+        setLocation({
+            latitude: newLocation.lat,
+            longitude: newLocation.lng,
+        });
+    };
+
     // If user's location is available, render the map and markers
     return location?.latitude && (
         <View style={styles.container}>
@@ -70,8 +77,8 @@ export default function SearchScreen() {
                     }}
                 >
                     <Image
-                        source={require('../../assets/Images/location-mark.png')} // Custom image for marker icon
-                        style={{ width: 45, height: 40, opacity: 0.9, border: 1, borderRadius: 40 }} // Style for marker icon
+                        source={require('../../assets/Images/locationMark.png')} // Custom image for marker icon
+                        style={{ width: 50, height: 45, border: 1, borderRadius: 40 }} // Style for marker icon
                     />
                 </Marker>
 
@@ -83,8 +90,8 @@ export default function SearchScreen() {
                             longitude: item.location.longitude,
                         }}
                         onPress={() => handleMarkerPress(index)} // Scroll to card on marker press
-                    // title={item.displayName?.text}
-                    // description={item.shortFormattedAddress}
+                        title={item.displayName?.text}
+                        description={item.shortFormattedAddress}
                     >
                         <Image
                             source={require('../../assets/Images/StationMarker.png')} // Custom image for marker icon
@@ -96,7 +103,7 @@ export default function SearchScreen() {
             </MapView>
 
             <View style={styles.searchBar}>
-                <Searchbar />
+                <Searchbar searchedLocation={handleSearchedLocation} />
             </View>
 
             <View style={styles.placeListContainer}>
