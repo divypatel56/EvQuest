@@ -9,11 +9,13 @@ import { UserLocationContext } from '../Context/UserLocationContext'; // Import 
 import { Image } from 'react-native-elements'; // Import Image component for custom marker icons
 import PlaceListView from './SearchPage/PlaceListView';
 
+
 export default function SearchScreen() {
     // Access the user's location and the function to update it from the UserLocationContext
     const { location, setLocation } = useContext(UserLocationContext);
     const [placeList, setPlaceList] = useState([]);
     const placeListRef = useRef(null); // Ref to access PlaceListView functions
+
 
 
     // useEffect hook to fetch nearby places whenever the location changes
@@ -41,6 +43,8 @@ export default function SearchScreen() {
         // Call the API to get nearby places and log the response
         GlobalAPI.NewNearByPlace(data).then(resp => {
             //console.log(JSON.stringify(resp.data)); // Log the response data to the console
+            //console.log('Nearby Places Response:', JSON.stringify(resp.data, null, 2)); // Check the structure
+
             setPlaceList(resp.data?.places);
         });
     };
@@ -50,6 +54,7 @@ export default function SearchScreen() {
         placeListRef.current?.scrollToIndex(index);
     };
 
+    //To handle search location from searchbar
     const handleSearchedLocation = (newLocation) => {
         setLocation({
             latitude: newLocation.lat,
@@ -106,6 +111,7 @@ export default function SearchScreen() {
                 <Searchbar searchedLocation={handleSearchedLocation} />
             </View>
 
+
             <View style={styles.placeListContainer}>
                 {placeList && <PlaceListView placeList={placeList} ref={placeListRef} />}
             </View>
@@ -145,5 +151,6 @@ const styles = StyleSheet.create({
         zIndex: 4,
 
         width: '100%'
-    }
+    },
+
 });
