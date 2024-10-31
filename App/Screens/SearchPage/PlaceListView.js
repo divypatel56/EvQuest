@@ -1,5 +1,5 @@
 import { View, Text, FlatList, Dimensions, StyleSheet } from 'react-native'
-import React, { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useEffect, forwardRef, useImperativeHandle, useState } from 'react';
 import PlaceItem from './PlaceItem';
 
 //get screen width

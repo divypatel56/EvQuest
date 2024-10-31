@@ -1,10 +1,13 @@
-import { View, Text, Image, Dimensions, StyleSheet, Linking, Pressable } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, Image, Dimensions, StyleSheet, Linking, Pressable, ToastAndroid, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import GlobalAPI from '../../../assets/utils/GlobalAPI';
 import { LinearGradient } from 'expo-linear-gradient';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AntDesign from '@expo/vector-icons/AntDesign';
-
+import { getFirestore } from "firebase/firestore";
+import { app } from '../../../assets/utils/FirebaseConfig';
+import { doc, setDoc, getDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { useUser } from '@clerk/clerk-expo';
 
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window'); // Screen width
@@ -13,6 +16,25 @@ export default function PlaceItem({ place }) {
     const [isFavorite, setIsFavorite] = useState(false); // State to track favorite status
     const PLACE_PHOTO_BASE_URL = "https://places.googleapis.com/v1/";
     const key = GlobalAPI.API_Key;
+
+
+    const { user } = useUser();
+
+    // Initialize Cloud Firestore and get a reference to the service
+    const db = getFirestore(app);
+    // Reference to the fav document
+    const favDocRef = doc(db, "ev-fav-place", place.id.toString());
+    useEffect(() => {
+        const unsubscribe = onSnapshot(favDocRef, (docSnap) => {
+            if (docSnap.exists() && docSnap.data().email === user?.primaryEmailAddress?.emailAddress) {
+                setIsFavorite(true);
+            } else {
+                setIsFavorite(false);
+            }
+        });
+        return () => unsubscribe();
+    }, [favDocRef, user]);
+
 
     // Access latitude and longitude correctly from the place object
     const latitude = place?.location?.latitude;
@@ -27,9 +49,45 @@ export default function PlaceItem({ place }) {
             Alert.alert('Location Error', 'Coordinates not available for this place.');
         }
     };
+    // Format URL to show only domain if too long
+    const formatUrl = (url) => {
+        try {
+            const urlObj = new URL(url);
+            const formattedUrl = `${urlObj.hostname}${urlObj.pathname.length > 20 ? urlObj.pathname.substring(0, 20) + '...' : urlObj.pathname}`;
+            return formattedUrl;
+        } catch (error) {
+            console.error("Error formatting URL:", error);
+            return url; // Return original URL if parsing fails
+        }
+    };
+
     // Toggle favorite status
-    const toggleFavorite = () => {
-        setIsFavorite(!isFavorite);
+    // Toggle favorite status and handle add/remove to favorites collection
+    const toggleFavorite = async () => {
+        if (!place || !place.id) return; // Exit if no place data
+        try {
+            const docSnap = await getDoc(favDocRef);
+
+            if (docSnap.exists()) {
+                // If the document exists and belongs to the current user, remove it from favorites
+                if (docSnap.data().email === user?.primaryEmailAddress?.emailAddress) {
+                    await deleteDoc(favDocRef);
+                    setIsFavorite(false);
+                    ToastAndroid.show("Removed from Favourites", ToastAndroid.TOP);
+                }
+            } else {
+                // If the document does not exist, add it to favorites with user email
+                await setDoc(favDocRef, {
+                    place: place,
+                    email: user?.primaryEmailAddress?.emailAddress || "Unknown" // Use user email
+                });
+                setIsFavorite(true);
+                ToastAndroid.show("Added to Favourites", ToastAndroid.TOP);
+            }
+        } catch (error) {
+            console.error("Error toggling favorite status: ", error);
+            ToastAndroid.show("Error updating Favourite!", ToastAndroid.TOP);
+        }
     };
 
     return (
@@ -58,36 +116,33 @@ export default function PlaceItem({ place }) {
                 </View>
             </View>
 
-            {/* Information Section */}
-            <View style={styles.infoSection}>
-                <Text style={styles.placeName}>
+            {/* Information Section (Scrollable) */}
+            <ScrollView style={styles.infoSection} contentContainerStyle={styles.infoContainer}>
+                <Text style={styles.placeName} numberOfLines={1} ellipsizeMode="tail">
                     {place.displayName?.text}
                 </Text>
-
-                <Text style={styles.placeAddress}>
+                <Text style={styles.placeAddress} numberOfLines={1} ellipsizeMode="tail">
                     {place?.shortFormattedAddress}
                 </Text>
+                {place.website && (
+                    <Text style={styles.placeUrl} onPress={() => Linking.openURL(place?.website)}>
+                        {formatUrl(place?.website)}
+                    </Text>
+                )}
                 <Text style={styles.connectorsLabel}>Connectors</Text>
                 <View style={styles.bottomRow}>
                     <Text style={styles.connectorCount}>
-                        {/* If connectorCount exists, display the count; otherwise, display "N/A" */}
                         {place?.evChargeOptions?.connectorCount ? place.evChargeOptions.connectorCount + " Points" : "N/A"}
                     </Text>
-                    {/* Heart Button */}
                     <Pressable style={styles.heartButton} onPress={toggleFavorite}>
                         <AntDesign
-                            name={isFavorite ? "heart" : "hearto"} // Toggle between filled and outlined heart
-                            size={16}
+                            name={isFavorite ? "heart" : "hearto"}
+                            size={18}
                             color="white"
-                        //backgroundColor="#6a46ab"
                         />
                     </Pressable>
                 </View>
-
-
-            </View>
-
-
+            </ScrollView>
         </View>
     );
 }
@@ -96,7 +151,7 @@ const styles = StyleSheet.create({
     cardContainer: {
         width: SCREEN_WIDTH * 0.9, // Match card width with screen width
         backgroundColor: "#ffffff",
-        height: 370,
+        height: 350,
         marginHorizontal: SCREEN_WIDTH * 0.050, // Only vertical margin to prevent spacing issues in horizontal scroll
         borderRadius: 15,
         overflow: 'hidden',
@@ -110,23 +165,18 @@ const styles = StyleSheet.create({
     bottomRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center', // Align items to place the heart next to the connector count
-    },
-    heartButton: {
-        backgroundColor: "#6a46ab", // Same background color as arrow button
-        padding: 12,
-        borderRadius: 50,
-        zIndex: 10,
-        elevation: 5, // slight shadow for the button
+        alignItems: 'center',
+
     },
     imageWrapper: {
-        height: '55%',
+        height: SCREEN_WIDTH * 0.50, // Set dynamic height relative to width
         position: 'relative',
     },
     image: {
         width: '100%',
         height: '100%',
     },
+
     imageGradient: {
         position: 'absolute',
         left: 0,
@@ -145,32 +195,49 @@ const styles = StyleSheet.create({
         elevation: 5, // slight shadow for the button
     },
     infoSection: {
-        padding: 10,
-        height: '45%',
-        justifyContent: 'space-between'
+        height: 140, // Set this to control scroll area height
+        paddingHorizontal: 10,
+    },
+    infoContainer: {
+        paddingVertical: 10,
     },
     placeName: {
         fontFamily: 'Outfit',
-        fontSize: 19,
+        fontSize: 20,
         color: '#333',
         fontWeight: '600',
         marginBottom: 4,
+
     },
     placeAddress: {
         color: "#666",
         fontFamily: 'Outfit',
         marginBottom: 4,
     },
+    placeUrl: {
+        color: '#1E90FF',
+        textDecorationLine: 'underline',
+        fontFamily: 'Outfit',
+        fontSize: 14,
+    },
     connectorsLabel: {
         color: "#999",
         fontFamily: 'Outfit',
-        fontSize: 14,
+        fontSize: 17,
     },
     connectorCount: {
         color: "#333",
         fontFamily: 'Outfit-medium',
-        fontSize: 14,
+        fontSize: 17,
         fontWeight: '500',
         marginBottom: 4,
+    },
+    heartButton: {
+        backgroundColor: "#6a46ab", // Same background color as arrow button
+        padding: 12,
+        borderRadius: 50,
+        zIndex: 10,
+        elevation: 7, // slight shadow for the button
+        marginBottom: 14,
     },
 });

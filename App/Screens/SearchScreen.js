@@ -25,7 +25,7 @@ export default function SearchScreen() {
     }, [location]); // Dependency on `location` state to run the effect when location updates
 
     // Function to get nearby places based on the user's current location
-    const GetNearbyPlace = () => {
+    const GetNearbyPlace = async () => {
         // Data object with search parameters, including types and location restriction
         const data = {
             "includedTypes": ["electric_vehicle_charging_station"], // Search for EV charging stations
@@ -41,12 +41,27 @@ export default function SearchScreen() {
             }
         };
         // Call the API to get nearby places and log the response
-        GlobalAPI.NewNearByPlace(data).then(resp => {
-            //console.log(JSON.stringify(resp.data)); // Log the response data to the console
-            //console.log('Nearby Places Response:', JSON.stringify(resp.data, null, 2)); // Check the structure
+        GlobalAPI.NewNearByPlace(data).then(async resp => {
+            const places = resp.data?.places;
 
-            setPlaceList(resp.data?.places);
-        });
+            // Fetch and log details for each place
+            if (places && places.length) {
+                const placesWithDetails = await Promise.all(places.map(async (place) => {
+                    const details = await GlobalAPI.getPlaceDetails(place.id);
+                    return { ...place, website: details?.website }; // Add website to the place object
+                }));
+                setPlaceList(placesWithDetails);
+            }
+        }).catch(error => {
+            console.error('Error fetching nearby places:', error);
+        })
+
+        // GlobalAPI.NewNearByPlace(data).then(resp => {
+        //     //console.log(JSON.stringify(resp.data)); // Log the response data to the console
+        //     //console.log('Nearby Places Response:', JSON.stringify(resp.data, null, 2)); // Check the structure
+
+        //     setPlaceList(resp.data?.places);
+        // });
     };
 
     const handleMarkerPress = (index) => {
