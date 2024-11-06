@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen'; // Import SplashScreen to ma
 import { useEffect, useState } from 'react'; // Import useEffect and useState for handling state and side-effects
 import LoginScreen from './App/Screens/LoginScreen'; // Import Login screen component
 import SignUpScreen from './App/Screens/SignUpScreen'; // Import Sign Up screen component
+import NavigationScreen from './App/Screens/NavigationScreen'; // Import Navigation Screen
 import AppStartScreen from './App/Screens/AppStartScreen'; // Import App Start screen component
 import { NavigationContainer } from '@react-navigation/native'; // Import NavigationContainer for managing navigation
 import { createStackNavigator } from '@react-navigation/stack'; // Import Stack Navigator for navigation stack
@@ -13,6 +14,7 @@ import TabNavigation from "./App/Navigation/TabNavigation"; // Import TabNavigat
 import 'react-native-get-random-values'; // Import required polyfill for random values
 import * as Location from 'expo-location'; // Import Expo's location API to access device location
 import { UserLocationContext } from './App/Context/UserLocationContext'; // Import UserLocationContext to manage user's location globally
+import 'react-native-gesture-handler';
 
 // Token cache to securely store and retrieve tokens using SecureStore
 const tokenCache = {
@@ -120,7 +122,11 @@ function NavigationHandler() {
   return (
     <View style={styles.container}>
       <SignedIn>
-        <TabNavigation />
+        {/* <TabNavigation /> */}
+        <Stack.Navigator>
+          <Stack.Screen name="Tabs" component={TabNavigation} options={{ headerShown: false }} />
+          <Stack.Screen name="NavigationScreen" component={NavigationScreen} options={{ headerShown: false, title: 'Directions' }} />
+        </Stack.Navigator>
       </SignedIn>
 
       <SignedOut>

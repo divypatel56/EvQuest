@@ -1,5 +1,5 @@
-import { View, Text, Image, Dimensions, StyleSheet, Linking, Pressable, ToastAndroid, ScrollView } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import { View, Text, Image, Dimensions, StyleSheet, Linking, Pressable, ToastAndroid, ScrollView, Alert } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
 import GlobalAPI from '../../../assets/utils/GlobalAPI';
 import { LinearGradient } from 'expo-linear-gradient';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -8,6 +8,8 @@ import { getFirestore } from "firebase/firestore";
 import { app } from '../../../assets/utils/FirebaseConfig';
 import { doc, setDoc, getDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { useUser } from '@clerk/clerk-expo';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { UserLocationContext } from '../../Context/UserLocationContext'; // Import UserLocationContext to manage user location globally
 
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window'); // Screen width
@@ -16,6 +18,8 @@ export default function PlaceItem({ place }) {
     const [isFavorite, setIsFavorite] = useState(false); // State to track favorite status
     const PLACE_PHOTO_BASE_URL = "https://places.googleapis.com/v1/";
     const key = GlobalAPI.API_Key;
+    const { location: userLocation } = useContext(UserLocationContext);
+    const navigation = useNavigation();
 
 
     const { user } = useUser();
@@ -39,8 +43,27 @@ export default function PlaceItem({ place }) {
     // Access latitude and longitude correctly from the place object
     const latitude = place?.location?.latitude;
     const longitude = place?.location?.longitude;
+    // Function to show options
+    const handleNavigationOptions = () => {
+        Alert.alert(
+            "Choose Navigation Method",
+            "How would you like to navigate?",
+            [
+                {
+                    text: "Google Maps",
+                    onPress: () => openGoogleMaps()
+                },
+                {
+                    text: "EvQuest Navigation",
+                    onPress: () => navigateToNavigationScreen()
+                },
+                { text: "Cancel", style: "cancel" }
+            ],
+            { cancelable: true }
+        );
+    };
 
-    // Handle direction navigation
+    // Handle direction navigation with google
     const openGoogleMaps = () => {
         if (latitude && longitude) {
             const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
@@ -49,6 +72,20 @@ export default function PlaceItem({ place }) {
             Alert.alert('Location Error', 'Coordinates not available for this place.');
         }
     };
+
+    // Update function to navigate to NavigationScreen
+    const navigateToNavigationScreen = () => {
+        if (userLocation && latitude && longitude) {
+            console.log('Navigating with origin:', userLocation, 'and destination:', { latitude, longitude });
+            navigation.navigate('NavigationScreen', {
+                origin: userLocation,
+                destination: { latitude, longitude },
+            });
+        } else {
+            Alert.alert('Location Error', 'Coordinates not available for this place or user.');
+        }
+    };
+
     // Format URL to show only domain if too long
     const formatUrl = (url) => {
         try {
@@ -60,8 +97,6 @@ export default function PlaceItem({ place }) {
             return url; // Return original URL if parsing fails
         }
     };
-
-    // Toggle favorite status
     // Toggle favorite status and handle add/remove to favorites collection
     const toggleFavorite = async () => {
         if (!place || !place.id) return; // Exit if no place data
@@ -112,7 +147,7 @@ export default function PlaceItem({ place }) {
 
                 {/* Direction Arrow */}
                 <View style={styles.arrowButton} >
-                    <FontAwesome5 name="location-arrow" size={16} color="white" onPress={openGoogleMaps} />
+                    <FontAwesome5 name="location-arrow" size={16} color="white" onPress={handleNavigationOptions} />
                 </View>
             </View>
 
@@ -146,6 +181,7 @@ export default function PlaceItem({ place }) {
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     cardContainer: {
