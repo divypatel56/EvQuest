@@ -15,6 +15,8 @@ import 'react-native-get-random-values'; // Import required polyfill for random 
 import * as Location from 'expo-location'; // Import Expo's location API to access device location
 import { UserLocationContext } from './App/Context/UserLocationContext'; // Import UserLocationContext to manage user's location globally
 import 'react-native-gesture-handler';
+import VerificationScreen from './App/Screens/VerificationScreen';
+// import ForgotPasswordScreen from './App/Screens/ForgotPasswordScreen';
 
 // Token cache to securely store and retrieve tokens using SecureStore
 const tokenCache = {
@@ -134,6 +136,8 @@ function NavigationHandler() {
           <Stack.Screen name="AppStart" component={AppStartScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Login', headerShown: false }} />
           <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Sign Up', headerShown: false }} />
+          <Stack.Screen name="Verification" component={VerificationScreen} options={{ title: 'Sign Up', headerShown: false }} />
+          {/* <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ title: 'Sign Up', headerShown: false }} /> */}
         </Stack.Navigator>
       </SignedOut>
     </View>

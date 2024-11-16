@@ -1,11 +1,62 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
-
-
+// SignUpScreen.js
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useSignUp } from '@clerk/clerk-expo';
+import VerificationScreen from './VerificationScreen';
 
 const SignUpScreen = () => {
-    const navigation = useNavigation(); // Access navigation
+    const [fullName, setFullName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState(null);
+    const { isLoaded, signUp } = useSignUp();
+    const navigation = useNavigation();
+
+    const validateEmail = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    };
+
+    const handleSignUp = async () => {
+        if (!isLoaded) {
+            console.log("Sign up not loaded yet");
+            return;
+        }
+
+        // Check for empty fields
+        if (!fullName || !email || !password || !confirmPassword) {
+            setErrorMessage("All fields are required.");
+            console.log("Missing fields");
+            return;
+        }
+
+        if (!validateEmail(email)) {
+            setErrorMessage("Please enter a valid email address.");
+            console.log("Invalid email format");
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setErrorMessage("Passwords do not match.");
+            console.log("Passwords do not match");
+            return;
+        }
+
+        try {
+            console.log("Attempting sign-up...");
+            await signUp.create({ emailAddress: email, password });
+            await signUp.prepareEmailAddressVerification();
+            console.log("Email verification link sent!");
+            navigation.navigate('Verification');
+        } catch (error) {
+            const errorMsg = error.errors[0]?.message || 'Unknown error';
+            setErrorMessage('Sign-up error: ' + errorMsg);
+            console.log("Sign-up error:", errorMsg);
+        }
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.textContainer}>
@@ -16,12 +67,37 @@ const SignUpScreen = () => {
             <Image source={require('./../../assets/Images/signupBG.webp')} style={styles.logo} />
 
             <View style={styles.card}>
-                <TextInput style={styles.input} placeholder="Full Name" placeholderTextColor="#888" />
-                <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" placeholderTextColor="#888" />
-                <TextInput style={styles.input} placeholder="Password" secureTextEntry={true} placeholderTextColor="#888" />
-                <TextInput style={styles.input} placeholder="Confirm Password" secureTextEntry={true} placeholderTextColor="#888" />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Full Name"
+                    placeholderTextColor="#888"
+                    onChangeText={(text) => setFullName(text)}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    keyboardType="email-address"
+                    placeholderTextColor="#888"
+                    onChangeText={(text) => setEmail(text.trim())}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    secureTextEntry={true}
+                    placeholderTextColor="#888"
+                    onChangeText={(text) => setPassword(text)}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Confirm Password"
+                    secureTextEntry={true}
+                    placeholderTextColor="#888"
+                    onChangeText={(text) => setConfirmPassword(text)}
+                />
 
-                <TouchableOpacity style={styles.button}>
+                {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+
+                <TouchableOpacity style={styles.button} onPress={handleSignUp}>
                     <Text style={styles.buttonText}>Sign Up</Text>
                 </TouchableOpacity>
 
@@ -75,12 +151,12 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 20,
         width: '100%',
-        maxWidth: 350, // Maximum width for larger screens
+        maxWidth: 350,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 5 },
         shadowOpacity: 0.2,
         shadowRadius: 10,
-        elevation: 6, // Shadow for Android
+        elevation: 6,
     },
     input: {
         borderColor: '#ddd',
@@ -123,6 +199,13 @@ const styles = StyleSheet.create({
         color: '#6f7070',
         fontFamily: 'Outfit',
         fontSize: 16,
+    },
+    errorText: {
+        color: 'red',
+        fontFamily: 'Outfit',
+        fontSize: 14,
+        marginBottom: 10,
+        textAlign: 'center',
     },
 });
 
