@@ -1,8 +1,16 @@
+//SearchBar.js
+// -------------------------- Imports --------------------------
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Import the icon library
 
+
+// -------------------------- GooglePlacesInput Component --------------------------
+/**
+ * GooglePlacesInput is a functional component that renders a search bar for EV charging stations.
+ * It uses the Google Places API to fetch place details and passes the location data to the parent component.
+ * searchedLocation - Callback function to handle the selected location.
+ */
 const GooglePlacesInput = ({ searchedLocation }) => {
     return (
         <View style={styles.container}>
@@ -28,6 +36,9 @@ const GooglePlacesInput = ({ searchedLocation }) => {
         </View>
     );
 };
+
+// -------------------------- Styles --------------------------
+
 const styles = StyleSheet.create({
     container: {
         width: '100%',

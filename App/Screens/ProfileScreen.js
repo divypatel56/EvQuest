@@ -1,3 +1,6 @@
+//ProfileScreen.js
+
+// -------------------------- Imports --------------------------
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, TextInput, StyleSheet, Dimensions, Animated, Easing, TouchableOpacity, Alert, ScrollView
@@ -7,19 +10,26 @@ import { useNavigation } from '@react-navigation/native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useUser } from '@clerk/clerk-expo';
 
+
+// -------------------------- Constants --------------------------
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
+
+// -------------------------- Profile Screen Componenet --------------------------
 export default function ProfileScreen() {
+    // -------------------------- State Management --------------------------
     const { signOut } = useAuth();
     const navigation = useNavigation();
     const { user } = useUser();
-
-    const [floatAnim] = useState(new Animated.Value(0)); // Animation value for floating effect
+    // Animation state for floating effect
+    const [floatAnim] = useState(new Animated.Value(0));
+    // Vehicle information state
     const [vehicleInfo, setVehicleInfo] = useState({
         chargingPoint: '',
         company: '',
     });
 
+    // -------------------------- Animation Effects --------------------------
     useEffect(() => {
         // Start floating animation on mount
         Animated.loop(
@@ -40,6 +50,8 @@ export default function ProfileScreen() {
         ).start();
     }, []);
 
+    // -------------------------- Event Handlers --------------------------
+    //Handle Signout 
     const handleSignOut = async () => {
         try {
             await signOut();
@@ -61,6 +73,7 @@ export default function ProfileScreen() {
         // so it will persist in the input fields automatically
     };
 
+    // -------------------------- UI Rendering --------------------------
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
@@ -105,6 +118,7 @@ export default function ProfileScreen() {
     );
 }
 
+// -------------------------- Styles --------------------------
 const styles = StyleSheet.create({
     scrollContainer: {
         flexGrow: 1,

@@ -1,28 +1,39 @@
 //LoginScreen.js
+// -------------------------- Imports --------------------------
+// Core components and libraries
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Animated, Image, Alert } from 'react-native';
+// Import useNavigation
+import { useNavigation } from '@react-navigation/native';
+//Auth imports
 import { useSignIn } from '@clerk/clerk-expo';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+
 import * as Updates from 'expo-updates';
+//Icon Library
 import { Ionicons } from '@expo/vector-icons';
 
+// -------------------------- Component --------------------------
 
-
-
+/**
+ * LogIn Screen Component
+ * Displays the Login screen with Random facts, navigation, and Log-In functionality.
+ */
 export default function LoginScreen({ setIsSignedIn }) {
+    // Clerk hooks for managing sign-in
     const { isLoaded, signIn } = useSignIn();
+
+    //State Managment
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState(null);
     const navigation = useNavigation();
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
-
-
-
-    // Select a random fun fact when the app loads
     const [randomFact, setRandomFact] = useState('');
-    // Array of EV fun facts
+
+    // Initial opacity for fade-in animation
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+
+    // Fun facts array for displaying EV-related trivia
     const funFacts = [
         "EVs produce zero tailpipe emissions, helping reduce pollution in cities!",
         "Electric vehicles can convert over 77% of electrical energy from the grid to power at the wheels.",
@@ -31,14 +42,11 @@ export default function LoginScreen({ setIsSignedIn }) {
         "Some electric cars can go from 0 to 60 mph in under 3 seconds!"
     ];
 
-
-
+    // Select a random fun fact on component mount
     useEffect(() => {
         const randomIndex = Math.floor(Math.random() * funFacts.length);
         setRandomFact(funFacts[randomIndex]);
     }, []);
-
-    const fadeAnim = useRef(new Animated.Value(0)).current;  // Initial opacity set to 0
 
     // Fade-in animation for the logo
     useEffect(() => {
@@ -49,12 +57,15 @@ export default function LoginScreen({ setIsSignedIn }) {
         }).start();
     }, [fadeAnim]);
 
+    //  -------------------------- Handlers --------------------------
+
     // Email validation function
     const validateEmail = (email) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regex.test(email);
     };
 
+    //Function to handle Log-in
     const handleLogin = async () => {
         if (!email || !password) {
             Alert.alert("Invalid Input", "Please fill in both fields.");
@@ -66,8 +77,7 @@ export default function LoginScreen({ setIsSignedIn }) {
             return;
         }
 
-
-        if (!isLoaded) return;
+        if (!isLoaded) return; // Prevent actions if Clerk is not loaded
 
         try {
             const signInAttempt = await signIn.create({ identifier: email, password });
@@ -75,9 +85,6 @@ export default function LoginScreen({ setIsSignedIn }) {
             if (signInAttempt.status === 'complete') {
                 console.log('Login successful, navigating to Tabs');
                 Updates.reloadAsync();
-                //navigation.navigate('Tabs');
-
-
             } else if (signInAttempt.status === 'needs_first_factor') {
                 setErrorMessage('Please complete the login verification.');
             } else if (signInAttempt.status === 'needs_second_factor') {
@@ -90,15 +97,19 @@ export default function LoginScreen({ setIsSignedIn }) {
         }
     };
 
+    // -------------------------- UI Rendering --------------------------
     return (
         <View style={styles.container}>
+            {/* Display a fun fact */}
             <Text style={styles.funFact}>Do you know?</Text>
             <Text style={styles.subtitle}>{randomFact}</Text>
 
+            {/* Logo with fade-in animation */}
             <Animated.View style={[styles.logoContainer, { opacity: fadeAnim }]}>
                 <Image source={require('./../../assets/Images/loginBG.jpg')} style={styles.logo} />
             </Animated.View>
 
+            {/* Login form card */}
             <View style={styles.card}>
                 <Text style={styles.header}>Login</Text>
 
@@ -110,7 +121,7 @@ export default function LoginScreen({ setIsSignedIn }) {
                     keyboardType="email-address"
                     autoCapitalize="none"
                 />
-
+                {/* Password input field with visibility toggle */}
                 <View style={styles.passwordInputContainer}>
                     <TextInput
                         style={styles.passwordInput}
@@ -124,6 +135,7 @@ export default function LoginScreen({ setIsSignedIn }) {
                     </TouchableOpacity>
                 </View>
 
+                {/* Login button */}
                 <TouchableOpacity style={styles.button} onPress={handleLogin}>
                     <Text style={styles.buttonText}>Log In</Text>
                 </TouchableOpacity>
@@ -136,6 +148,12 @@ export default function LoginScreen({ setIsSignedIn }) {
     );
 }
 
+
+// -------------------------- Styles --------------------------
+
+/**
+ * Styles for the Log-in Screen component
+ */
 const styles = StyleSheet.create({
     container: {
         flex: 1,

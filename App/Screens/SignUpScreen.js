@@ -1,24 +1,43 @@
 // SignUpScreen.js
+// -------------------------- Imports --------------------------
+// Core components and libraries
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSignUp } from '@clerk/clerk-expo';
-import VerificationScreen from './VerificationScreen';
 
+// -------------------------- Component --------------------------
+
+/**
+ * SignUp Screen Component
+ * Displays a form to create a new user account with Clerk's sign-up service.
+ */
 const SignUpScreen = () => {
-    const [fullName, setFullName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState(null);
-    const { isLoaded, signUp } = useSignUp();
-    const navigation = useNavigation();
 
+    // -------------------------- State Management --------------------------
+    const [fullName, setFullName] = useState(''); //User's full name
+    const [email, setEmail] = useState(''); //user's email
+    const [password, setPassword] = useState('');// password
+    const [confirmPassword, setConfirmPassword] = useState(''); // confirm password 
+    const [errorMessage, setErrorMessage] = useState(null); // Error message for validation feedback
+
+    const { isLoaded, signUp } = useSignUp(); // Clerk's sign-up hooks
+    const navigation = useNavigation(); // Navigation hook for routing
+
+    // -------------------------- Helper Functions --------------------------
+    /**
+    * Validates the email format.
+    */
     const validateEmail = (email) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regex.test(email);
     };
 
+    //---------------------------- Handlers -------------------------------
+
+    /**
+     * Handles the sign-up process by validating inputs and interacting with Clerk's API.
+     */
     const handleSignUp = async () => {
         if (!isLoaded) {
             console.log("Sign up not loaded yet");
@@ -43,7 +62,7 @@ const SignUpScreen = () => {
             console.log("Passwords do not match");
             return;
         }
-
+        //Attempt Sign up Process
         try {
             console.log("Attempting sign-up...");
             await signUp.create({ emailAddress: email, password });
@@ -56,6 +75,8 @@ const SignUpScreen = () => {
             console.log("Sign-up error:", errorMsg);
         }
     };
+
+    // -------------------------- UI Rendering --------------------------
 
     return (
         <View style={styles.container}>
@@ -112,6 +133,11 @@ const SignUpScreen = () => {
     );
 };
 
+// -------------------------- Styles --------------------------
+
+/**
+ * Styles for the Sign-up Screen component
+ */
 const styles = StyleSheet.create({
     container: {
         flex: 1,
