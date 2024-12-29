@@ -31,12 +31,9 @@ export default function SearchScreen() {
     // Context: Access user's current location and setter from UserLocationContext
     const { location, setLocation } = useContext(UserLocationContext);
 
-
     // State to manage the list of nearby places
     const [placeList, setPlaceList] = useState([]);
     const placeListRef = useRef(null); // Ref to access PlaceListView functions
-
-
 
     // useEffect hook to fetch nearby places whenever the location changes
     useEffect(() => {
@@ -75,13 +72,6 @@ export default function SearchScreen() {
         }).catch(error => {
             console.error('Error fetching nearby places:', error);
         })
-
-        // GlobalAPI.NewNearByPlace(data).then(resp => {
-        //     //console.log(JSON.stringify(resp.data)); // Log the response data to the console
-        //     //console.log('Nearby Places Response:', JSON.stringify(resp.data, null, 2)); // Check the structure
-
-        //     setPlaceList(resp.data?.places);
-        // });
     };
 
     // Handle marker press: Scroll to the corresponding item in the list

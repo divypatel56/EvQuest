@@ -25,8 +25,9 @@
     "expo-linear-gradient": "~13.0.2",
     "expo-location": "~17.0.1",
     "expo-secure-store": "~13.0.2",
-    "expo-splash-screen": "~0.27.5",
+    "expo-splash-screen": "^0.27.7",
     "expo-status-bar": "~1.12.1",
+    "expo-updates": "~0.25.27",
     "expo-web-browser": "~13.0.3",
     "firebase": "^10.14.1",
     "lottie-react-native": "6.7.0",
@@ -46,8 +47,7 @@
     "reanimated-bottom-sheet": "^1.0.0-alpha.22",
     "tailwindcss-react-native": "^1.7.10",
     "typescript": "~5.3.3",
-    "uuid": "^10.0.0",
-    "expo-updates": "~0.25.27"
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
