@@ -1,23 +1,41 @@
+//AppStart Screen
+// -------------------------- Imports --------------------------
+
+// Core components and libraries
 import { View, Text, Image, StyleSheet, TouchableOpacity, Animated, Linking } from 'react-native';
 import React, { useEffect, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+// OAuth and authentication
 import * as WebBrowser from "expo-web-browser";
 import { useWarmUpBrowser } from '../hooks/warmUpBrowser';
+// Custom hooks
 import { useOAuth } from '@clerk/clerk-expo';
 
-
+// Ensure WebBrowser completes any active sessions
 WebBrowser.maybeCompleteAuthSession();
 
+// -------------------------- Component --------------------------
+
+/**
+ * AppStartScreen Component
+ * Displays the start screen with animations, navigation, and Google Sign-In functionality.
+ */
 export default function AppStartScreen() {
-    useWarmUpBrowser;
+    useWarmUpBrowser; // Warm-up browser for smoother OAuth experience
+
+    // Clerk OAuth Google Sign-In handler
     const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
 
-    const navigation = useNavigation(); // Access navigation
+    // Access navigation for navigating between screens
+    const navigation = useNavigation();
+
+    // Animation references
     const titleAnim = useRef(new Animated.Value(0)).current;
     const textAnim = useRef(new Animated.Value(0)).current;
     const buttonAnim = useRef(new Animated.Value(0)).current;
     const imageAnim = useRef(new Animated.Value(0)).current;
 
+    // -------------------------- Animation Effects --------------------------
     useEffect(() => {
         Animated.parallel([
             Animated.timing(titleAnim, {
@@ -45,25 +63,14 @@ export default function AppStartScreen() {
         ]).start();
     }, [titleAnim, textAnim, buttonAnim, imageAnim]);
 
-    const titleOpacity = titleAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0, 1],
-    });
+    // Animation interpolations
+    const titleOpacity = titleAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 1], });
+    const textOpacity = textAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 1], });
+    const buttonOpacity = buttonAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 1], });
+    const imageScale = imageAnim.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1], });
 
-    const textOpacity = textAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0, 1],
-    });
+    // -------------------------- Handlers --------------------------
 
-    const buttonOpacity = buttonAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0, 1],
-    });
-
-    const imageScale = imageAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0.5, 1], // Scales the image from 50% to 100%
-    });
     // Function to handle Google Sign-In
     const handleGoogleSignIn = async () => {
         try {
@@ -80,6 +87,7 @@ export default function AppStartScreen() {
         }
     };
 
+    // -------------------------- UI Rendering --------------------------
     return (
         <View style={styles.container}>
             <Animated.Text style={[styles.title, { opacity: titleOpacity }]}>
@@ -117,6 +125,12 @@ export default function AppStartScreen() {
         </View>
     );
 }
+
+// -------------------------- Styles --------------------------
+
+/**
+ * Styles for the AppStartScreen component
+ */
 const styles = StyleSheet.create({
     container: {
         flex: 1,

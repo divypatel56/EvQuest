@@ -1,22 +1,42 @@
+//App.js
+// ---------------------------- Imports ----------------------------
+
+// Core components and libraries
 import { StyleSheet, View, Text } from 'react-native'; // Import core components from React Native
 import { useFonts } from 'expo-font'; // Import the useFonts hook from Expo to load custom fonts
 import * as SplashScreen from 'expo-splash-screen'; // Import SplashScreen to manage splash screen behavior
 import { useEffect, useState } from 'react'; // Import useEffect and useState for handling state and side-effects
+// Screens and Navigation
 import LoginScreen from './App/Screens/LoginScreen'; // Import Login screen component
 import SignUpScreen from './App/Screens/SignUpScreen'; // Import Sign Up screen component
 import NavigationScreen from './App/Screens/NavigationScreen'; // Import Navigation Screen
 import AppStartScreen from './App/Screens/AppStartScreen'; // Import App Start screen component
+import VerificationScreen from './App/Screens/VerificationScreen';
+// import ForgotPasswordScreen from './App/Screens/ForgotPasswordScreen';
+
+// Navigation libraries
 import { NavigationContainer } from '@react-navigation/native'; // Import NavigationContainer for managing navigation
 import { createStackNavigator } from '@react-navigation/stack'; // Import Stack Navigator for navigation stack
+import TabNavigation from "./App/Navigation/TabNavigation"; // for bottom tab navigation
+
+// Authentication
 import { ClerkProvider, useAuth, SignedIn, SignedOut } from '@clerk/clerk-expo'; // Import Clerk Provider for authentication
+
+// Secure storage and utilities
 import * as SecureStore from "expo-secure-store"; // Import SecureStore for storing tokens securely
-import TabNavigation from "./App/Navigation/TabNavigation"; // Import TabNavigation for bottom tab navigation
 import 'react-native-get-random-values'; // Import required polyfill for random values
 import * as Location from 'expo-location'; // Import Expo's location API to access device location
 import { UserLocationContext } from './App/Context/UserLocationContext'; // Import UserLocationContext to manage user's location globally
-import 'react-native-gesture-handler';
+import 'react-native-gesture-handler';  // For gesture handling support
 
-// Token cache to securely store and retrieve tokens using SecureStore
+// ----------------------- Constants & Configuration -----------------------
+const Stack = createStackNavigator(); // Create a stack navigator for screen navigation
+const Publishable_Key = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY; // Use Clerk publishable key from environment variables
+
+
+/**
+ * Token cache utility for securely storing and retrieving tokens using SecureStore.
+ */
 const tokenCache = {
   async getToken(key) {
     try {
@@ -37,12 +57,13 @@ const tokenCache = {
 // Prevent the splash screen from auto-hiding until fonts are loaded
 SplashScreen.preventAutoHideAsync();
 
-const Stack = createStackNavigator(); // Create a stack navigator for screen navigation
-
-// Use Clerk publishable key from environment variables
-const Publishable_Key = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
+// ---------------------------- Main App Component ----------------------------
+/**
+ * The main application component. It sets up global providers, handles font loading,
+ * and manages location access.
+ */
 export default function App() {
+
   // Load custom fonts using the useFonts hook
   const [loaded, error] = useFonts({
     'Outfit': require('./assets/fonts/Outfit-Regular.ttf'),
@@ -54,7 +75,10 @@ export default function App() {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  // useEffect hook to request location permission and get user location
+  /**
+   * useEffect hook to request location permissions and retrieve the user's current location.
+   * Runs only once.
+   */
   useEffect(() => {
     (async () => {
       try {
@@ -83,6 +107,8 @@ export default function App() {
     text = JSON.stringify(location); // Display the location coordinates
   }
 
+
+
   // useEffect hook to hide the splash screen once the fonts are loaded
   useEffect(() => {
     if (loaded || error) {
@@ -110,7 +136,10 @@ export default function App() {
   );
 }
 
-// NavigationHandler component to manage signed-in and signed-out states
+// ------------------------- Navigation Handler -------------------------
+/**
+ * NavigationHandler component to manage signed-in and signed-out states.
+ */
 function NavigationHandler() {
   const { isLoaded } = useAuth(); // Get the auth loading state from Clerk
 
@@ -122,7 +151,6 @@ function NavigationHandler() {
   return (
     <View style={styles.container}>
       <SignedIn>
-        {/* <TabNavigation /> */}
         <Stack.Navigator>
           <Stack.Screen name="Tabs" component={TabNavigation} options={{ headerShown: false }} />
           <Stack.Screen name="NavigationScreen" component={NavigationScreen} options={{ headerShown: false, title: 'Directions' }} />
@@ -134,13 +162,17 @@ function NavigationHandler() {
           <Stack.Screen name="AppStart" component={AppStartScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Login', headerShown: false }} />
           <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Sign Up', headerShown: false }} />
+          <Stack.Screen name="Verification" component={VerificationScreen} options={{ title: 'Sign Up', headerShown: false }} />
+          {/* <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} options={{ title: 'Sign Up', headerShown: false }} /> */}
         </Stack.Navigator>
       </SignedOut>
     </View>
   );
 }
 
-// Styles for the components
+/**
+ * Styles for the application components.
+ */
 const styles = StyleSheet.create({
   container: {
     flex: 1, // Make the container take up the entire screen

@@ -1,22 +1,39 @@
+//SerachScreen
+// -------------------------- Imports --------------------------
+
+// Core React and React Native components
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import MapView, { Marker } from 'react-native-maps'; // Import MapView and Marker for rendering map and markers
-import * as Location from 'expo-location'; // Import Location API to get user's location
+
+// Core React and React Native components
+import MapView, { Marker } from 'react-native-maps';
+
+// Location and external libraries
+//import * as Location from 'expo-location'; // Import Location API to get user's location
+import { Image } from 'react-native-elements'; // Import Image component for custom marker icons
+
+// Utilities and Contexts
 import MapStyle from '../../assets/utils/MapStyle.json'; // Custom Google Map style for styling the map
-import Searchbar from '../Screens/SearchPage/SearchBar'; // Import the custom search bar for Google Places input
 import GlobalAPI from '../../assets/utils/GlobalAPI'; // Import the API utility for fetching nearby places
 import { UserLocationContext } from '../Context/UserLocationContext'; // Import UserLocationContext to manage user location globally
-import { Image } from 'react-native-elements'; // Import Image component for custom marker icons
-import PlaceListView from './SearchPage/PlaceListView';
 
+// Custom Components
+import Searchbar from '../Screens/SearchPage/SearchBar'; // Import the custom search bar 
+import PlaceListView from './SearchPage/PlaceListView';  // List view for nearby places
 
+// -------------------------- Component --------------------------
+/**
+ * SearchScreen Component
+ * Displays a map with nearby EV charging stations and provides a search bar
+ * for searching places and a list of nearby stations.
+ */
 export default function SearchScreen() {
-    // Access the user's location and the function to update it from the UserLocationContext
+    // Context: Access user's current location and setter from UserLocationContext
     const { location, setLocation } = useContext(UserLocationContext);
+
+    // State to manage the list of nearby places
     const [placeList, setPlaceList] = useState([]);
     const placeListRef = useRef(null); // Ref to access PlaceListView functions
-
-
 
     // useEffect hook to fetch nearby places whenever the location changes
     useEffect(() => {
@@ -24,7 +41,7 @@ export default function SearchScreen() {
         location && GetNearbyPlace();
     }, [location]); // Dependency on `location` state to run the effect when location updates
 
-    // Function to get nearby places based on the user's current location
+    // Fetch nearby EV charging stations based on the user's location
     const GetNearbyPlace = async () => {
         // Data object with search parameters, including types and location restriction
         const data = {
@@ -55,15 +72,9 @@ export default function SearchScreen() {
         }).catch(error => {
             console.error('Error fetching nearby places:', error);
         })
-
-        // GlobalAPI.NewNearByPlace(data).then(resp => {
-        //     //console.log(JSON.stringify(resp.data)); // Log the response data to the console
-        //     //console.log('Nearby Places Response:', JSON.stringify(resp.data, null, 2)); // Check the structure
-
-        //     setPlaceList(resp.data?.places);
-        // });
     };
 
+    // Handle marker press: Scroll to the corresponding item in the list
     const handleMarkerPress = (index) => {
         // Call the scrollToIndex function in PlaceListView
         placeListRef.current?.scrollToIndex(index);
@@ -76,6 +87,8 @@ export default function SearchScreen() {
             longitude: newLocation.lng,
         });
     };
+
+    // -------------------------- UI Rendering --------------------------
 
     // If user's location is available, render the map and markers
     return location?.latitude && (
@@ -134,7 +147,11 @@ export default function SearchScreen() {
     );
 }
 
+// -------------------------- Styles --------------------------
 
+/**
+ * Styles for the Search Screen component
+ */
 const styles = StyleSheet.create({
     container: {
         flex: 1,

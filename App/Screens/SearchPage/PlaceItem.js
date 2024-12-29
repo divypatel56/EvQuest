@@ -1,33 +1,51 @@
+// -------------------------- Imports --------------------------
+// Core React and React Native components
 import { View, Text, Image, Dimensions, StyleSheet, Linking, Pressable, ToastAndroid, ScrollView, Alert } from 'react-native';
 import React, { useContext, useState, useEffect } from 'react';
-import GlobalAPI from '../../../assets/utils/GlobalAPI';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+
+//External Libraries
 import { LinearGradient } from 'expo-linear-gradient';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AntDesign from '@expo/vector-icons/AntDesign';
+
+//API Config and context
+import GlobalAPI from '../../../assets/utils/GlobalAPI';
+import { UserLocationContext } from '../../Context/UserLocationContext'; // Import UserLocationContext to manage user location globally
+import { useUser } from '@clerk/clerk-expo';
+
+//FireBase imports
 import { getFirestore } from "firebase/firestore";
 import { app } from '../../../assets/utils/FirebaseConfig';
 import { doc, setDoc, getDoc, deleteDoc, onSnapshot } from "firebase/firestore";
-import { useUser } from '@clerk/clerk-expo';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
-import { UserLocationContext } from '../../Context/UserLocationContext'; // Import UserLocationContext to manage user location globally
 
-
+// -------------------------- Constants --------------------------
 const { width: SCREEN_WIDTH } = Dimensions.get('window'); // Screen width
 
+
+// -------------------------- PlaceItem Component --------------------------
+
+/**This component displays information about a specific place, including its name, address, connectors,
+*  and an image. Users can navigate to the place using Google Maps or the app's navigation feature.
+*  It also allows users to add or remove the place from their favorites.
+*/
 export default function PlaceItem({ place }) {
-    const [isFavorite, setIsFavorite] = useState(false); // State to track favorite status
+    // -------------------------- Constants --------------------------
     const PLACE_PHOTO_BASE_URL = "https://places.googleapis.com/v1/";
     const key = GlobalAPI.API_Key;
-    const { location: userLocation } = useContext(UserLocationContext);
     const navigation = useNavigation();
 
-
+    //State managment
+    const [isFavorite, setIsFavorite] = useState(false); // State to track favorite status
+    //Context
+    const { location: userLocation } = useContext(UserLocationContext);
     const { user } = useUser();
 
     // Initialize Cloud Firestore and get a reference to the service
     const db = getFirestore(app);
-    // Reference to the fav document
     const favDocRef = doc(db, "ev-fav-place", place.id.toString());
+
+    // -------------------------- Firestore Logic --------------------------
     useEffect(() => {
         const unsubscribe = onSnapshot(favDocRef, (docSnap) => {
             if (docSnap.exists() && docSnap.data().email === user?.primaryEmailAddress?.emailAddress) {
@@ -39,11 +57,13 @@ export default function PlaceItem({ place }) {
         return () => unsubscribe();
     }, [favDocRef, user]);
 
+    // -------------------------- Navigation Logic --------------------------
 
     // Access latitude and longitude correctly from the place object
     const latitude = place?.location?.latitude;
     const longitude = place?.location?.longitude;
-    // Function to show options
+
+    // Function to show NAvigation options
     const handleNavigationOptions = () => {
         Alert.alert(
             "Choose Navigation Method",
@@ -63,7 +83,7 @@ export default function PlaceItem({ place }) {
         );
     };
 
-    // Handle direction navigation with google
+    //Navigate to Google Maps
     const openGoogleMaps = () => {
         if (latitude && longitude) {
             const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
@@ -73,7 +93,7 @@ export default function PlaceItem({ place }) {
         }
     };
 
-    // Update function to navigate to NavigationScreen
+    // Navigate to EvQuest Navigation
     const navigateToNavigationScreen = () => {
         if (userLocation && latitude && longitude) {
             console.log('Navigating with origin:', userLocation, 'and destination:', { latitude, longitude });
@@ -97,6 +117,9 @@ export default function PlaceItem({ place }) {
             return url; // Return original URL if parsing fails
         }
     };
+
+    // -------------------------- Favorite Handling --------------------------
+
     // Toggle favorite status and handle add/remove to favorites collection
     const toggleFavorite = async () => {
         if (!place || !place.id) return; // Exit if no place data
@@ -124,6 +147,8 @@ export default function PlaceItem({ place }) {
             ToastAndroid.show("Error updating Favourite!", ToastAndroid.TOP);
         }
     };
+
+    // -------------------------- UI Rendering --------------------------
 
     return (
         <View style={styles.cardContainer}>
@@ -182,7 +207,7 @@ export default function PlaceItem({ place }) {
     );
 }
 
-
+// -------------------------- Styles --------------------------
 const styles = StyleSheet.create({
     cardContainer: {
         width: SCREEN_WIDTH * 0.9, // Match card width with screen width
