@@ -33,8 +33,8 @@ Navigation
 ![image](https://github.com/user-attachments/assets/7c872ceb-492e-4f31-894c-beeb855c8e01)
 
 
-
 Profile
+
 ![image](https://github.com/user-attachments/assets/bf7066ed-3b47-4bff-a18d-7ca9dd3c1e5f)
 
 
