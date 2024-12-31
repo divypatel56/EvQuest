@@ -1,10 +1,10 @@
-Mobile Application that helps user to locate nearby EV charging stations and necessary details such as name, address, number of charging points, and official station 
+- Mobile Application that helps user to locate nearby EV charging stations and necessary details such as name, address, number of charging points, and official station 
 website link.
-Uses Google APIs to locate and display station information.
-Allows users to search nearby charging stations in specific locations.
-Allows users to mark stations as favorites and manages these preferences. 
-Support in-app navigation with turn-by-turn directions or redirection to Google Maps for better navigation. 
-Secure user authentication and account management. 
+- Uses Google APIs to locate and display station information.
+- Allows users to search nearby charging stations in specific locations.
+- Allows users to mark stations as favorites and manages these preferences. 
+- Support in-app navigation with turn-by-turn directions or redirection to Google Maps for better navigation. 
+- Secure user authentication and account management. 
 
 Note: You need to set up Firbaseconfig and API keys. 
 
